@@ -5,8 +5,8 @@ from WSclient import WSclient
 from WebSocketClient import WebSocketClient
 
 # Initialize WebSocket client
-# ws_client = WSclient("Cudy-EFFC", "33954721", "ws://192.168.10.244:8080/step5")
-ws_client = WSclient("Potatoes 2.4Ghz", "Hakunamatata7342!", "ws://192.168.2.241:8080/step5")
+ws_client = WSclient("Cudy-EFFC", "33954721", "ws://192.168.10.31:8080/step5")
+# ws_client = WSclient("Potatoes 2.4Ghz", "Hakunamatata7342!", "ws://192.168.2.241:8080/step5")
 
 # Attempt to connect WiFi and WebSocket
 def setup_connection():
@@ -25,7 +25,7 @@ def setup_connection():
 
 # Initialize components
 reader = MFRC522(spi_id=0, sck=5, miso=16, mosi=17, cs=18, rst=4)
-led = Pin(2, Pin.OUT)
+
 
 
 
@@ -57,11 +57,9 @@ try:
                 if ws:
                     try:
                         message = f"STEP 5 - TAG_DETECTED:{card}"
+                        ws.send(message)
                         if ws.send(message):
                             print(f"Sent message: {message}")
-                            led.value(1)  # Optional: Blink LED to confirm send
-                            utime.sleep_ms(200)
-                            led.value(0)
                         else:
                             print("Failed to send message")
                             # Attempt to reconnect if sending fails
@@ -75,7 +73,7 @@ try:
             print("TAG REMOVED")
             if ws:
                 try:
-                    message = "TAG_REMOVED"
+                    
                     if ws.send(message):
                         print(f"Sent message: {message}")
                     else:
