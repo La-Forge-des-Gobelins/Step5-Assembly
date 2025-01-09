@@ -4,18 +4,28 @@ from neopixel import NeoPixel
 from WSclient import WSclient
 from WebSocketClient import WebSocketClient
 
-NUM_LEDS = 150
-NEOPIXEL_PIN = Pin(13)
+NUM_LEDS = 200
+NEOPIXEL_PIN = Pin(19)
 led_strip = NeoPixel(NEOPIXEL_PIN, NUM_LEDS)
-
 
 # Initialize WebSocket client
 ws_client = WSclient("Cudy-EFFC", "33954721", "ws://192.168.10.31:8080/step5")
-# ws_client = WSclient("Potatoes 2.4Ghz", "Hakunamatata7342!", "ws://192.168.2.241:8080/step5")
 
+def clear_strip():
+    for i in range(NUM_LEDS):
+        led_strip[i] = (0, 0, 0)
+    led_strip.write()
 
+def running_light(duration=10):
+    start_time = utime.time()
+    while utime.time() - start_time < duration:
+        for i in range(NUM_LEDS):
+            clear_strip()
+            led_strip[i] = (255, 255, 255)  # Rouge
+            led_strip.write()
+            utime.sleep_ms(50)
+    clear_strip()
 
-# Attempt to connect WiFi and WebSocket
 def setup_connection():
     try:
         if ws_client.connect_wifi():
@@ -23,6 +33,7 @@ def setup_connection():
             if ws.connect():
                 print("WebSocket connection established")
                 ws.send("connect")
+                running_light(2)
                 return ws
         print("Failed to establish connection")
         return None
@@ -33,25 +44,23 @@ def setup_connection():
 # Establish WebSocket connection
 ws = setup_connection()
 
-
 try:
     while True:
-        
         msg = ws.receive()
         print("Message reçu :", msg)
             
-        if msg == "Assemblage":
-            print("ready")
+        if msg == "Start":
+            print("Animation started")
+            running_light()  # Lance l'animation pendant 10 secondes
             
         elif msg == "ping":
             ws.send("Assemblage - pong")
             
-                
-        utime.sleep_ms(50)  # Short delay to prevent excessive polling
+        utime.sleep_ms(50)
 
 except KeyboardInterrupt:
     print("Bye")
 finally:
-    # Ensure WebSocket is closed
     if ws:
         ws.close()
+    clear_strip()
