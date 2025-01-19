@@ -4,12 +4,12 @@ from neopixel import NeoPixel
 from WSclient import WSclient
 from WebSocketClient import WebSocketClient
 
-NUM_LEDS = 200
+NUM_LEDS = 250
 NEOPIXEL_PIN = Pin(19)
 led_strip = NeoPixel(NEOPIXEL_PIN, NUM_LEDS)
 
 # Initialize WebSocket client
-ws_client = WSclient("Cudy-EFFC", "33954721", "ws://192.168.10.31:8080/step5")
+ws_client = WSclient("Cudy-EFFC", "33954721", "ws://192.168.10.250:8080/step5")
 
 def clear_strip():
     for i in range(NUM_LEDS):
@@ -49,9 +49,10 @@ try:
         msg = ws.receive()
         print("Message reçu :", msg)
             
-        if msg == "Start":
+        if msg == "assembly_start":
             print("Animation started")
             running_light()  # Lance l'animation pendant 10 secondes
+            ws.send("assembly_play")
             
         elif msg == "ping":
             ws.send("Assemblage - pong")
